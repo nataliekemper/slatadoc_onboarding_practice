@@ -1,13 +1,7 @@
 from django import forms
 from .models import UserProfile
 
-COUNTRY_LIST = {
-    ('GE', 'Georgia'),
-    ('USA', 'United States of America'),
-    ('OTH', 'Other'),
-    }
-
-class UserRegistrationForm(forms.Form):
+class UserRegistrationForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        fields = ['email', 'name']
+        fields = ['first_name', 'last_name', 'email', 'country', 'password']
