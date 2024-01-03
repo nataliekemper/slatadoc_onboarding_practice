@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
 # Create your models here.
 
@@ -20,9 +20,15 @@ class UserManager(BaseUserManager):
         """
         if not email:
             raise ValueError("The Email field must be set")
+        # ensures a default country is set if none is specified (i.e. superusers)
+        if country is None:
+            print("Country is none")
+            country = Country.objects.get(name="Not Applicable")
+            print(country)
         
         email = self.normalize_email(email)
-        user = self.model(email=email, **extra_fields)
+        user = self.model(email=email, country=country, **extra_fields)
+        print("Country ID before saving user:", user.country.country_id)
         user.set_password(password)
         user.save(using=self._db)
         return user
@@ -33,7 +39,6 @@ class UserManager(BaseUserManager):
         """
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
-        extra_fields.setdefault('country', Country.objects.get(name='Not Applicable'))
 
         if extra_fields.get('is_staff') is not True:
             raise ValueError("Superuser must have is_staff=True.")
@@ -55,7 +60,7 @@ class UserManager(BaseUserManager):
 
 
 
-class UserProfile(AbstractBaseUser):
+class UserProfile(PermissionsMixin, AbstractBaseUser):
     email = models.EmailField(verbose_name='email address', max_length=255, unique=True)
     full_name = models.CharField(max_length=200, blank=True)
     preferred_name = models.CharField(max_length=200, blank=True)
@@ -74,15 +79,7 @@ class UserProfile(AbstractBaseUser):
     def __str__(self):
         return self.email
 
-    #@property
-    #def is_staff(self):
-        #"Is the user a member of staff?"
-        #return self.staff
 
-    #@property
-    #def is_admin(self):
-        #"Is the user a admin member?"
-        #return self.admin
 
 # default customer with set fields
 class Customer(models.Model):
