@@ -2,10 +2,15 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
 # Create your models here.
+COUNTRY_LIST = [
+    ('Not Applicable', 'Not Applicable'),
+    ('United States', 'United States'),
+    ('Georgia', 'Georgia'),
+]
 
 class Country(models.Model):
     country_id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=250, unique=True)
+    name = models.CharField(max_length=250, unique=True, choices=COUNTRY_LIST)
 
     def __str__(self):
         return self.name
@@ -93,11 +98,11 @@ class Customer(models.Model):
     billing_zip_code = models.CharField(max_length=20)
     billing_country = models.ForeignKey(Country, on_delete=models.CASCADE)
 
-# create a few country specific customer models that will be linked to user profile model
-class US_Customer(models.Model):
-    user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
-
-class Georgia_Customer(models.Model):
-    user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+class Georgia_Customer(Customer):
     # georgia specific fields
     tax_id = models.CharField(max_length=11, unique=True)
+    
+    #Django automatically creates customer_ptr because this class inherits from the Customer model
+    customer_ptr = models.OneToOneField(
+        Customer, parent_link=True, on_delete=models.CASCADE,
+        primary_key=True, unique=True, default=None)
