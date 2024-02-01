@@ -1,0 +1,61 @@
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign Up Wizard - Step 2</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+
+    <style>
+        form {
+            height: 55%;
+            width: 32%;
+            margin: 80px auto;
+            margin-top: 55px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 25px;
+            box-shadow: 8px 5px 38px 11px rgba(226, 226, 226, 1);
+        }
+
+        h1 {
+            margin-bottom: 10px;
+            color: #204AD2;
+            font-size: 30px;
+            font-weight: bold;
+        }
+
+        .logo {
+            margin-top: 15px; /* Adjust as needed */
+            margin-left: 15px; /* Adjust as needed */
+        }
+    </style>
+
+</head>
+<body>
+
+<img src="{% static 'slatadoc_logo.png' %}" alt="Logo" class="logo" width="150">
+
+
+<form method="post">
+    {% csrf_token %}
+    {{ wizard.management_form }}
+
+    <h1>Step 2: Personal Information</h1>
+
+    <!-- Form fields for the second step -->
+    <p>{{ form.full_name.label_tag }} {{ form.full_name }}</p>
+    <p>{{ form.preferred_name.label_tag }} {{ form.preferred_name }}</p>
+
+
+    <!-- Button to move to the next step -->
+    <button type="submit">Next</button>
+</form>
+
+</body>
+</html>

@@ -1,0 +1,79 @@
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Registration</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <script src="https://unpkg.com/htmx.org@1.7.0/dist/htmx.js"></script>
+
+    <style>
+        form {
+            height: 65%;
+            width: 32%;
+            margin: 80px auto;
+            margin-top: 55px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 25px;
+            box-shadow: 8px 5px 38px 11px rgba(226, 226, 226, 1);
+        }
+        h1 {
+            margin-bottom: 10px;
+            color: #204AD2;
+            font-size: 30px;
+            font-weight: bold;
+        }
+        .logo {
+            margin-top: 15px;
+            margin-left: 15px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group p {
+            display: inline-block;
+        }
+        .form-group .state-region {
+            width: 50%;
+            margin-left: 10px;
+        }
+        .form-group .bill-country {
+            width: 50%;
+            margin-left: 10px;
+        }
+    </style>
+
+
+</head>
+<body>
+
+<img src="{% static 'slatadoc_logo.png' %}" alt="Logo" class="logo" width="150">
+
+<form method="post">
+    {% csrf_token %}
+    {{ wizard.management_form }}
+
+    <h1>Step 3: Billing Information</h1>
+
+    <p>{{ form.billing_address_line1.label_tag }} {{ form.billing_address_line1 }}</p>
+    <p>{{ form.billing_address_line2.label_tag }} {{ form.billing_address_line2 }}</p>
+
+    <div class="form-group">
+        <p>{{ form.billing_city.label_tag }} {{ form.billing_city }}</p>
+        <p class="state-region">{{ form.billing_state_region.label_tag }} {{ form.billing_state_region }}</p>
+    </div>
+    <div class="form-group">
+        <p>{{ form.billing_zip_code.label_tag }} {{ form.billing_zip_code }}</p>
+        <p class="bill-country">{{ form.billing_country.label_tag }} {{ form.billing_country }}</p>
+    </div>
+
+    <button type="submit">Complete Registration</button>
+</form>
+
+</body>
+</html>

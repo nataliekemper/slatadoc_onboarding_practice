@@ -10,7 +10,7 @@ COUNTRY_LIST = [
 
 class Country(models.Model):
     country_id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=250, unique=True, choices=COUNTRY_LIST)
+    name = models.CharField(max_length=250, unique=True)
 
     def __str__(self):
         return self.name
@@ -25,6 +25,7 @@ class UserManager(BaseUserManager):
         """
         if not email:
             raise ValueError("The Email field must be set")
+
         # ensures a default country is set if none is specified (i.e. superusers)
         if country is None:
             print("Country is none")
@@ -52,17 +53,6 @@ class UserManager(BaseUserManager):
 
         return self.create_user(email, password, **extra_fields)
 
-    #def create_Georgia_customer(self, email, password = None, **tax_id):
-        """
-        Uses create_customer() to create and save a Georgia User 
-        with the given email, password, and tax_id.
-        """
-        #georgia_country = Country.objects.get(name="Georgia")
-        #georgia_user = self.create_user(email, password = password, country = georgia_country)
-        
-        #Georgia_Customer.objects.create(user_profile = georgia_user, tax_id = tax_id)
-        #return georgia_user
-
 
 
 class UserProfile(PermissionsMixin, AbstractBaseUser):
@@ -89,6 +79,7 @@ class UserProfile(PermissionsMixin, AbstractBaseUser):
 # default customer with set fields
 class Customer(models.Model):
     user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    phonenumber = models.CharField(max_length=50, blank=True)
 
     # billing address information
     billing_address_line1 = models.CharField(max_length=200)
@@ -98,11 +89,8 @@ class Customer(models.Model):
     billing_zip_code = models.CharField(max_length=20)
     billing_country = models.ForeignKey(Country, on_delete=models.CASCADE)
 
-class Georgia_Customer(Customer):
+class Georgia_Customer(models.Model):
     # georgia specific fields
     tax_id = models.CharField(max_length=11, unique=True)
-    
-    #Django automatically creates customer_ptr because this class inherits from the Customer model
-    customer_ptr = models.OneToOneField(
-        Customer, parent_link=True, on_delete=models.CASCADE,
-        primary_key=True, unique=True, default=None)
+    user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)

@@ -1,0 +1,205 @@
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Registration</title>
+    <script src="https://unpkg.com/htmx.org@1.7.0/dist/htmx.js"></script>
+
+    <style>
+        body {
+            background-color:#f5f6fa; 
+            margin: 0;
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        form {
+            height: 65%;
+            width: 32%;
+            margin: 80px auto;
+            margin-top: 55px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 25px;
+            box-shadow: 8px 5px 38px 11px rgba(226, 226, 226, 1);
+        }
+
+        .logo {
+            width: 150;
+            margin-top: 15px;
+            margin-left: 15px;
+        }
+
+        h1 {
+        margin-bottom: 10px;
+        color: #204AD2;
+        font-size: 30px;
+        font-weight: bold;
+        }
+
+        p.login-section {
+        margin-bottom: 30px;
+        color: #3c3c3c;
+        font-size: 12px;
+
+        }
+
+        label {
+        font-weight: bold;
+        font-size: 11px;
+        display: block;
+        margin-bottom: 1px;
+        text-transform: uppercase;
+        color: #3c3c3c;
+        }
+
+        /* Text Box */
+        input[type="text"], 
+        input[type="email"],
+        input[type="password"] {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 8px;
+        border-color: #f5f6fa;
+        border-radius: 10px;
+        border: 1px solid #f5f6fa;
+        font-size: 15px;
+        background-color: #f5f6fa;
+        }
+
+        /* Dropdown Menu */
+        select {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 8px;
+            border-color: #f5f6fa;
+            border-radius: 10px;
+            border: 1px solid #f5f6fa;
+            font-size: 12px;
+            background-color: #f5f6fa;
+        }
+
+        select:focus {
+            border-color: #204AD2;
+            background-color: #fff;
+            outline: none;
+        }
+
+        #taxIdContainer {
+            display: none; /* Hide the container by default */
+            margin-bottom: 15px
+        }
+
+        .error-message {
+            color: red; /* Set the color of the error messages */
+            font-size: 14px; /* Set the font size of the error messages */
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            background-color: #204AD2;
+            margin-top: 12px;
+            color: #fff;
+            border: none;
+            padding: 10px 50px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+    </style>
+
+
+</head>
+<body>
+
+<img src="{% static 'slatadoc_logo.png' %}" alt="Logo" class="logo">
+
+<form method="post" hx-target="#signup_wizard2">
+    {% csrf_token %}
+    {{ wizard.management_form }}
+
+    <h1>Step 1: Create an Account</h1>
+
+    <p class="login-section">Already have an account? Login Here</p>
+
+    <p>{{ form.country.label_tag }} {{ form.country }}</p>
+    {% if form.country.value == '2' %} {# Check if 'Georgia' is selected #}
+        <p>{{ form.tax_id.label_tag }} {{ form.tax_id }}</p>
+    {% endif %}
+    <p>{{ form.full_name.label_tag }} {{ form.full_name }}</p>
+    <p>{{ form.email.label_tag }} {{ form.email }}</p>
+    <p>{{ form.phone_number.label_tag }} {{ form.phone_number }}</p>
+
+    <div id="taxIdContainer">
+        <label for="id_tax_id">Tax ID:</label>
+        <input type="text" id="id_tax_id" name="tax_id">
+    </div>
+
+    <p>{{ form.password.label_tag }} {{ form.password }}</p>
+
+    {% for field, errors in form.errors.items %}
+    {% if field != 'password' %}
+      <div class="error">
+        {{ field }}:
+        {% for error in errors %}
+          <span class="error-message">{{ error }}</span>
+        {% endfor %}
+      </div>
+    {% else %}
+      {% for error in errors %}
+        <div class="error">
+          <span class="error-message">{{ error }}</span>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endfor %}
+
+    <button type="submit">Next</button>
+</form>
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var countryDropdown = document.getElementById('id_0-country');
+        var phoneNumberField = document.getElementById('id_0-phone_number');
+        var taxIdContainer = document.getElementById('taxIdContainer');
+
+        // Hide the tax_id field by default
+        taxIdContainer.style.display = 'none';
+
+        if (countryDropdown) {
+            countryDropdown.addEventListener('change', function () {
+
+                var countryCodes = {
+                    // 3=USA, 2=Georgia
+                    '3': '+1',
+                    '2': '+995',
+                };
+
+
+                var countryCode = countryCodes[countryDropdown.value] || ''
+                console.log('country: ', countryDropdown.value)
+                console.log('phone: ', phoneNumberField.value)
+                console.log('country code:', countryCode)
+
+                phoneNumberField.value = countryCode
+
+                // 'Georgia' country check
+                if (countryDropdown.value === '2') {
+                    taxIdContainer.style.display = 'block';  // Show the tax_id field
+                } else {
+                    taxIdContainer.style.display = 'none';  
+                }
+
+                console.log('Selected Country:', countryDropdown.value);
+            });
+        }
+    });
+</script>
+
+</body>
+</html>

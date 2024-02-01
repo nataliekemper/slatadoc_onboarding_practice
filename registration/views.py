@@ -1,39 +1,77 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import login
-from .forms import BaseUserRegistrationForm
-from django.http import HttpResponse
-from django.template.loader import render_to_string
+from .forms import FirstStepForm, SecondStepForm, ThirdStepForm
+from .models import Country, UserProfile, Customer, Georgia_Customer
+from formtools.wizard.views import SessionWizardView
+from .validators import CustomPasswordValidator
 
-# Create your views here.
-def register_user(request):
-    if request.method == 'POST':
-        country = request.POST.get('country')
-        print(country)
+FORMS = [
+("0", FirstStepForm),
+("1", SecondStepForm),
+("2", ThirdStepForm),
+]
 
-        if country == 'Georgia':
-            form = BaseUserRegistrationForm(request.POST)
-        else:
-            form = BaseUserRegistrationForm(request.POST)
+TEMPLATES = {
+"0": "signup_wizard1.html",
+"1": "signup_wizard2.html",
+"2": "signup_wizard3.html",
+}
 
-        print("Received data:", request.POST)
-        print("Form is valid:", form.is_valid())
-        print("Form errors:", form.errors)
+class SignUpWizard(SessionWizardView):
+    #template_name = 'signup_wizard1.html'
+    form_list = [FirstStepForm, SecondStepForm, ThirdStepForm]
 
-        if form.is_valid():
-            print('The form is valid')
-            user = form.save()
-            login(request, user)
-            return redirect('success_view')
-        else:
-            print('The form is not valid. Errors:', form.errors)
-    else:
-        form = BaseUserRegistrationForm()
-    return render(request, 'index.html', {'form': form})
+    def done(self, form_list, **kwargs):
 
-def success_view(request):
-    return render(request, 'success.html')
+        for form in form_list:
+            print(f"Form errors: {form.errors}")
 
-def get_country_fields(request):
-    country = request.GET.get('country', 'Default')
-    form_fields = render_to_string('registration_form_field.html', {'country': country})
-    return HttpResponse(form_fields)
+        data1 = self.get_cleaned_data_for_step('0')
+        data2 = self.get_cleaned_data_for_step('1')
+        data3 = self.get_cleaned_data_for_step('2')
+
+        all_data = {**data1, **data2, **data3}
+        print("All Data: ", all_data)
+
+        # First create a UserProfile
+        userprofile = UserProfile.objects.create(
+            email = all_data['email'],
+            full_name = all_data['full_name'],
+            preferred_name = all_data.get('preferred_name', ''),
+            password = all_data['password'],
+            country = all_data['country'],
+            is_active = True
+        )
+
+        print("UserProfile created:", userprofile)
+
+        customer = Customer.objects.create(
+            user_profile = userprofile,
+            phonenumber = all_data['phone_number'],
+            billing_address_line1 = all_data['billing_address_line1'],
+            billing_address_line2 = all_data.get('billing_address_line2', ''),
+            billing_city = all_data['billing_city'],
+            billing_state_region = all_data['billing_state_region'],
+            billing_zip_code = all_data['billing_zip_code'],
+            billing_country = all_data['billing_country']
+        )
+        print("Customer created:", customer)
+        print("billing country", all_data['billing_country'])
+
+        if all_data['country'] == Country.objects.get(name='Georgia'):
+            print("Creating Georgian Customer...")
+            georgia_customer = Georgia_Customer.objects.create(
+                customer = customer,
+                user_profile=userprofile,
+                tax_id=all_data.get('tax_id', '')
+                )
+            print("Georgia Customer created: ", georgia_customer)
+
+        return redirect('signup_success')
+
+    def get_template_names(self):
+        return [TEMPLATES[self.steps.current]]
+
+
+
+def signup_success(request):
+    return render(request, 'signup_success.html')
