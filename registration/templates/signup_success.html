@@ -12,8 +12,11 @@
     <h1>Success!</h1>
     <p>Your registration was successful.</p>
 
-    <button type="submit">Sign Up Page</button>
-    <button type="submit">Login</button>
+    <form action="{% url 'signup_wizard1' %}" method="post">
+        {% csrf_token %}
+        {{ wizard.management_form }}
+        <button type="submit">Back to Signup Page</button>
+    </form>
 
 </body>
 </html>

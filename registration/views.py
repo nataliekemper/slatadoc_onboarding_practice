@@ -32,6 +32,7 @@ class SignUpWizard(SessionWizardView):
         all_data = {**data1, **data2, **data3}
         print("All Data: ", all_data)
 
+
         # First create a UserProfile
         userprofile = UserProfile.objects.create(
             email = all_data['email'],

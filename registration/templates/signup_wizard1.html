@@ -140,6 +140,10 @@
 
     <p>{{ form.password.label_tag }} {{ form.password }}</p>
 
+    {% if form.errors.tax_id %}
+            <p class="error">{{ form.errors.tax_id }}</p>
+        {% endif %}
+
     {% for field, errors in form.errors.items %}
     {% if field != 'password' %}
       <div class="error">
@@ -176,8 +180,10 @@
 
                 var countryCodes = {
                     // 3=USA, 2=Georgia
-                    '3': '+1',
                     '2': '+995',
+                    '3': '+1',
+                    '4': '+44',
+                    '5': '+1'
                 };
 
 
